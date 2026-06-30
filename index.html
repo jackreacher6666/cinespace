@@ -1,0 +1,1734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CineSpace - Movies & Web Series</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght=300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        body { 
+            background: radial-gradient(circle at 50% 0%, #1a0000 0%, #050505 60%); 
+            color: #ffffff; 
+            font-family: 'Outfit', sans-serif; 
+            overflow-x: hidden; 
+            transition: background 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        /* Neon Lighting Framework */
+        .glow-red { box-shadow: 0 0 25px rgba(239, 68, 68, 0.25); }
+        .glow-blue { box-shadow: 0 0 25px rgba(239, 68, 68, 0.25); }
+        .glow-purple { box-shadow: 0 0 25px rgba(255, 255, 255, 0.18); }
+        
+        /* Advanced Shimmer & Card Architecture */
+        .card-animate {
+            transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+            position: relative;
+            z-index: 1;
+            cursor: pointer;
+        }
+        .card-animate::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent);
+            transform: translateX(-100%);
+            z-index: 2;
+            pointer-events: none;
+        }
+        .card-animate:hover::before {
+            animation: shineSweep 0.8s ease;
+        }
+        .card-animate:hover {
+            transform: translateY(-10px) scale(1.03);
+            border-color: #ffffff;
+            box-shadow: 0 20px 40px rgba(255, 255, 255, 0.12), 0 0 25px rgba(239, 68, 68, 0.35);
+        }
+
+        @keyframes shineSweep {
+            100% { transform: translateX(100%); }
+        }
+
+        /* Premium Buttons */
+        .btn-premium {
+            position: relative;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            overflow: hidden;
+        }
+        .btn-premium:hover {
+            transform: translateY(-4px);
+            filter: brightness(1.15);
+        }
+        .btn-premium:active {
+            transform: translateY(-1px) scale(0.98);
+        }
+
+        .pill-animate {
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        .pill-animate:hover {
+            background: linear-gradient(90deg, #ef4444, #000000);
+            border-color: transparent;
+            transform: scale(1.08) rotate(1deg);
+            color: white;
+            box-shadow: 0 8px 20px rgba(239, 68, 68, 0.45);
+        }
+
+        /* Core Infinite Engine Loops */
+        @keyframes pulseGlow {
+            0%, 100% { transform: scale(1); filter: drop-shadow(0 0 15px rgba(239, 68, 68, 0.6)); }
+            50% { transform: scale(1.04); filter: drop-shadow(0 0 35px rgba(255, 255, 255, 0.85)); }
+        }
+        .logo-glow { animation: pulseGlow 5s infinite ease-in-out; }
+
+        @keyframes slideInUp {
+            from { opacity: 0; transform: translateY(40px) scale(0.96); filter: blur(8px); }
+            to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+        }
+        .animate-render { animation: slideInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+        /* Smooth Cinematic Scrollbars */
+        .custom-scroll::-webkit-scrollbar { height: 6px; width: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: #070913; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #1f293d; border-radius: 10px; }
+        .custom-scroll::-webkit-scrollbar-thumb:hover { background: linear-gradient(#ffffff, #ef4444); }
+        /* ===== 3D FUTURISTIC SPACE ENVIRONMENT ===== */
+        #space-canvas {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        /* perspective is applied per-element (.tilt-3d / .modal-3d), not on body,
+           so it never interferes with fixed-position modals or page scrolling */
+
+        /* 3D tilt-on-hover container — JS sets --rx / --ry / --tz per card */
+        .tilt-3d {
+            transform-style: preserve-3d;
+            transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateZ(var(--tz, 0px));
+            will-change: transform;
+        }
+        .tilt-3d .tilt-3d-shine {
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            background: radial-gradient(circle at var(--mx, 50%) var(--my, 50%), rgba(255,255,255,0.25), transparent 60%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+            z-index: 3;
+        }
+        .tilt-3d:hover .tilt-3d-shine { opacity: 1; }
+
+        /* Poster gets its own depth pop inside the tilted card */
+        .tilt-3d img {
+            transform: translateZ(20px);
+        }
+
+        /* 3D rotating holographic logo */
+        .logo-3d {
+            transform-style: preserve-3d;
+            animation: logoSpin3D 8s linear infinite;
+        }
+        @keyframes logoSpin3D {
+            0% { transform: perspective(600px) rotateY(0deg); }
+            100% { transform: perspective(600px) rotateY(360deg); }
+        }
+
+        /* Modal 3D warp-in entrance */
+        @keyframes warpIn3D {
+            from { opacity: 0; transform: perspective(1200px) rotateX(12deg) translateZ(-200px) scale(0.92); }
+            to { opacity: 1; transform: perspective(1200px) rotateX(0deg) translateZ(0) scale(1); }
+        }
+        .modal-3d { animation: warpIn3D 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; transform-style: preserve-3d; }
+
+        /* ===== CREATIVE LOGIN SCREEN ===== */
+        #login-screen { overscroll-behavior: contain; }
+
+        .login-card {
+            position: relative;
+            background: linear-gradient(165deg, rgba(15,5,5,0.9), rgba(5,5,8,0.95));
+            border: 1px solid rgba(239,68,68,0.25);
+            animation: loginBorderPulse 4s ease-in-out infinite;
+        }
+        @keyframes loginBorderPulse {
+            0%, 100% { box-shadow: 0 0 25px rgba(239,68,68,0.15), 0 20px 60px rgba(0,0,0,0.6); border-color: rgba(239,68,68,0.25); }
+            50% { box-shadow: 0 0 45px rgba(239,68,68,0.35), 0 20px 60px rgba(0,0,0,0.6); border-color: rgba(239,68,68,0.55); }
+        }
+
+        /* Film-strip sprocket holes on top & bottom of the login card */
+        .filmstrip-edge {
+            height: 14px;
+            background-image: radial-gradient(circle, #000 38%, transparent 40%);
+            background-size: 22px 14px;
+            background-repeat: repeat-x;
+            background-position: center;
+            background-color: #ef4444;
+            opacity: 0.85;
+        }
+        .filmstrip-edge.top { border-radius: 14px 14px 0 0; }
+        .filmstrip-edge.bottom { border-radius: 0 0 14px 14px; }
+
+        /* Scanning hologram line sweeping through the card */
+        .scan-line {
+            position: absolute;
+            left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(239,68,68,0.9), transparent);
+            box-shadow: 0 0 12px 2px rgba(239,68,68,0.6);
+            animation: scanSweep 3.2s ease-in-out infinite;
+            pointer-events: none;
+        }
+        @keyframes scanSweep {
+            0% { top: 8%; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { top: 92%; opacity: 0; }
+        }
+
+        /* Eyebrow access-portal tag */
+        .access-tag {
+            letter-spacing: 0.25em;
+            animation: accessBlink 2.4s ease-in-out infinite;
+        }
+        @keyframes accessBlink {
+            0%, 100% { opacity: 0.55; }
+            50% { opacity: 1; }
+        }
+
+        /* Spinning red projector reel beside the title */
+        .reel-spin { animation: reelTurn 6s linear infinite; }
+        @keyframes reelTurn { to { transform: rotate(360deg); } }
+
+        /* Login input focus glow ring */
+        #login-username-input:focus { box-shadow: 0 0 0 3px rgba(239,68,68,0.18); }
+
+        @media (prefers-reduced-motion: reduce) {
+            .login-card, .scan-line, .access-tag, .reel-spin { animation: none !important; }
+        }
+
+
+        /* Floating depth orbs */
+        .float-orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(60px);
+            opacity: 0.35;
+            z-index: -1;
+            pointer-events: none;
+            animation: floatOrb 14s ease-in-out infinite;
+        }
+        @keyframes floatOrb {
+            0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+            50% { transform: translate3d(30px, -40px, 60px) scale(1.15); }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .logo-3d, .float-orb, .tilt-3d { animation: none !important; transform: none !important; }
+        }
+
+        /* ===== STAT BANNER (glowing counters) ===== */
+        #stat-banner {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 1rem;
+            margin-bottom: 3rem;
+        }
+        .stat-pod {
+            position: relative;
+            background: linear-gradient(160deg, rgba(15,20,40,0.7), rgba(5,5,10,0.4));
+            border: 1px solid rgba(239,68,68,0.25);
+            border-radius: 18px;
+            padding: 1.2rem 1rem;
+            text-align: center;
+            overflow: hidden;
+        }
+        .stat-pod::after {
+            content: '';
+            position: absolute;
+            inset: -40%;
+            background: radial-gradient(circle, rgba(239,68,68,0.3), transparent 60%);
+            animation: statPulse 5s ease-in-out infinite;
+        }
+        @keyframes statPulse {
+            0%, 100% { transform: scale(0.9); opacity: 0.5; }
+            50% { transform: scale(1.15); opacity: 1; }
+        }
+        .stat-pod .stat-num {
+            position: relative;
+            z-index: 1;
+            font-size: 2rem;
+            font-weight: 900;
+            background: linear-gradient(90deg, #ff6b6b, #ffffff, #ef4444);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .stat-pod .stat-label {
+            position: relative;
+            z-index: 1;
+            font-size: 10px;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: rgba(180,190,220,0.6);
+            font-weight: 700;
+            margin-top: 0.25rem;
+        }
+
+        /* ===== TOAST NOTIFICATIONS WITH PARTICLE BURST ===== */
+        #toast-container {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
+        }
+        .toast {
+            position: relative;
+            background: linear-gradient(135deg, rgba(15,20,40,0.95), rgba(5,5,10,0.95));
+            border: 1px solid rgba(239,68,68,0.4);
+            box-shadow: 0 0 30px rgba(239,68,68,0.3);
+            border-radius: 14px;
+            padding: 0.9rem 1.2rem;
+            font-size: 12px;
+            font-weight: 700;
+            color: #ffffff;
+            min-width: 220px;
+            max-width: 320px;
+            animation: toastIn 0.45s cubic-bezier(0.16,1,0.3,1) forwards;
+            overflow: visible;
+        }
+        .toast.toast-out { animation: toastOut 0.4s ease forwards; }
+        @keyframes toastIn {
+            from { opacity: 0; transform: translateX(60px) scale(0.9); }
+            to { opacity: 1; transform: translateX(0) scale(1); }
+        }
+        @keyframes toastOut {
+            to { opacity: 0; transform: translateX(60px) scale(0.9); }
+        }
+        .toast-spark {
+            position: absolute;
+            top: 50%;
+            left: 14px;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: #ef4444;
+            box-shadow: 0 0 6px 2px rgba(239,68,68,0.8);
+            animation: sparkBurst 0.8s ease-out forwards;
+        }
+        @keyframes sparkBurst {
+            0% { transform: translate(0, 0) scale(1); opacity: 1; }
+            100% { transform: translate(var(--sx), var(--sy)) scale(0); opacity: 0; }
+        }
+    </style>
+</head>
+<body class="p-3 sm:p-4 md:p-8 min-h-screen flex flex-col justify-between">
+    <div id="toast-container"></div>
+
+    <!-- 3D Starfield Background -->
+    <canvas id="space-canvas"></canvas>
+    <div class="float-orb" style="width:380px;height:380px;top:5%;left:8%;background:#ef4444;"></div>
+    <div class="float-orb" style="width:300px;height:300px;top:55%;right:6%;background:#ffffff;animation-delay:-5s;"></div>
+    <div class="float-orb" style="width:260px;height:260px;bottom:5%;left:35%;background:#ef4444;animation-delay:-9s;"></div>
+
+    <!-- LOGIN / USER SELECT SCREEN -->
+    <div id="login-screen" class="fixed inset-0 z-[200] overflow-y-auto custom-scroll p-4 bg-black/92 backdrop-blur-2xl">
+        <div class="min-h-full w-full flex flex-col items-center justify-center py-10">
+
+            <div class="w-full max-w-md modal-3d">
+
+                <!-- Eyebrow -->
+                <div class="flex items-center justify-center gap-2 mb-3">
+                    <span class="w-1.5 h-1.5 rounded-full bg-[#ef4444] animate-ping"></span>
+                    <span class="access-tag text-[#ef4444] text-[10px] font-black uppercase">Secure Access Portal</span>
+                </div>
+
+                <div class="flex flex-col items-center mb-7">
+                    <div class="relative logo-glow p-4 rounded-2xl shadow-lg mb-4">
+                        <div class="bg-black border-2 border-[#ef4444]/70 p-3 rounded-2xl relative z-10">
+                            <i class="fa-solid fa-film text-[#ef4444] text-3xl"></i>
+                        </div>
+                        <i class="fa-solid fa-compact-disc reel-spin text-[#ef4444]/25 text-5xl absolute -top-3 -right-3 -z-0"></i>
+                    </div>
+                    <h1 class="text-3xl sm:text-4xl font-black tracking-tighter bg-gradient-to-r from-white via-neutral-200 to-[#ef4444] bg-clip-text text-transparent">CINE<span class="text-[#ef4444]">SPACE</span></h1>
+                    <p class="text-neutral-400 text-[10px] uppercase tracking-widest font-bold mt-1.5 flex items-center gap-1.5">
+                        <i class="fa-solid fa-clapperboard text-[#ef4444]"></i> Your Cinematic Universe Awaits
+                    </p>
+                </div>
+
+                <!-- Film-strip styled login card -->
+                <div class="login-card rounded-2xl overflow-hidden shadow-2xl">
+                    <div class="filmstrip-edge top"></div>
+                    <div class="relative p-6 overflow-hidden">
+                        <div class="scan-line"></div>
+                        <label class="text-[10px] uppercase tracking-widest font-bold text-neutral-400 mb-2 flex items-center gap-1.5">
+                            <i class="fa-solid fa-user-astronaut text-[#ef4444]"></i> Enter Username
+                        </label>
+                        <div class="flex gap-2 mb-5">
+                            <input type="text" id="login-username-input" placeholder="e.g. harsh_h" maxlength="24"
+                                   onkeydown="if(event.key==='Enter') loginAsUser()"
+                                   class="flex-1 bg-[#050508] border border-neutral-800 p-3 rounded-xl text-white text-sm outline-none focus:border-[#ef4444] transition-all">
+                            <button onclick="loginAsUser()" class="btn-premium bg-[#ef4444] hover:bg-red-700 text-white px-5 rounded-xl font-bold text-sm shadow-md glow-red shrink-0">
+                                <i class="fa-solid fa-arrow-right-to-bracket"></i>
+                            </button>
+                        </div>
+
+                        <div id="saved-users-section" class="hidden">
+                            <p class="text-[10px] uppercase tracking-widest font-bold text-neutral-400 mb-2 px-0.5 flex items-center gap-1.5">
+                                <i class="fa-solid fa-clock-rotate-left text-[#ef4444]"></i> Or continue as
+                            </p>
+                            <div id="saved-users-list" class="flex flex-wrap gap-2 mb-1"></div>
+                        </div>
+                    </div>
+                    <div class="filmstrip-edge bottom"></div>
+                </div>
+
+                <!-- Disclaimer (now clearly visible, high-contrast panel) -->
+                <div class="mt-5 bg-[#0e1322]/80 border border-[#ef4444]/20 rounded-xl px-4 py-3.5 flex items-start gap-3">
+                    <i class="fa-solid fa-shield-halved text-[#ef4444] text-sm mt-0.5 shrink-0"></i>
+                    <p class="text-left text-[11px] text-neutral-300 leading-relaxed">
+                        Each username keeps its own watchlist, watched list, ratings &amp; reviews on this device.
+                        Use <span class="text-white font-bold">Backup</span> after logging in so your data survives even if this browser's storage gets cleared.
+                    </p>
+                </div>
+            </div>
+
+            <footer class="text-center mt-8">
+                <p class="tracking-widest text-[10px] font-medium uppercase text-neutral-400">
+                    MADE BY <span class="bg-gradient-to-r from-[#ef4444] via-white to-[#ef4444] bg-clip-text text-transparent font-black tracking-normal">HARSH HARNE</span>
+                </p>
+            </footer>
+        </div>
+    </div>
+
+    <!-- MAIN APP CANVAS -->
+    <div id="main-app-content" class="max-w-7xl mx-auto w-full animate-render hidden">
+        
+        <!-- Premium Navigation Header -->
+        <header class="mb-8 border-b border-neutral-900/60 pb-6">
+
+            <!-- Row 1: Logo + Quick Action Icons -->
+            <div class="flex items-center justify-between gap-3 mb-5">
+                <div class="flex items-center gap-3 sm:gap-4 cursor-pointer group min-w-0" onclick="goHome()">
+                    <div class="logo-glow logo-3d bg-black border-2 border-[#ef4444]/70 p-2.5 sm:p-3 rounded-2xl shadow-lg shrink-0">
+                        <i class="fa-solid fa-film text-[#ef4444] text-lg sm:text-2xl"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <h1 class="text-2xl sm:text-4xl font-black tracking-tighter bg-gradient-to-r from-white via-neutral-200 to-[#ef4444] bg-clip-text text-transparent truncate">CINE<span class="text-[#ef4444]">SPACE</span></h1>
+                        <p id="logo-subtitle" class="hidden sm:flex text-neutral-400 text-[10px] uppercase tracking-widest font-bold mt-0.5 px-0.5 items-center gap-1">
+                            <span class="inline-block w-1.5 h-1.5 bg-red-500 rounded-full animate-ping"></span> Discover Movies & Web Series
+                        </p>
+                        <p id="active-user-display" class="hidden text-[11px] sm:text-xs font-bold text-[#ef4444] mt-0.5 px-0.5 items-center gap-1.5">
+                            <i class="fa-solid fa-user-circle"></i> <span id="active-user-name"></span>
+                            <button onclick="openSwitchUserScreen()" class="ml-1 text-neutral-500 hover:text-white underline decoration-dotted text-[10px] normal-case font-semibold">(switch)</button>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2 shrink-0">
+                    <button onclick="openAnalyticsModal()" title="My Stats" class="bg-[#0b0f19] hover:bg-[#111726] border border-red-900/40 w-10 h-10 sm:w-auto sm:h-auto sm:px-4 sm:py-3 rounded-xl transition flex items-center justify-center gap-2 text-sm font-semibold text-red-400 pill-animate glow-blue">
+                        <i class="fa-solid fa-chart-pie"></i><span class="hidden sm:inline">My Stats</span>
+                    </button>
+                    <button onclick="goHome()" title="Home" class="bg-[#111115] hover:bg-neutral-900 border border-neutral-800 w-10 h-10 sm:w-auto sm:h-auto sm:px-4 sm:py-3 rounded-xl transition flex items-center justify-center gap-2 text-sm font-semibold pill-animate">
+                        <i class="fa-solid fa-house text-[#ef4444]"></i><span class="hidden sm:inline">Home</span>
+                    </button>
+                    <button onclick="exportBackupFile()" title="Backup" class="btn-premium bg-black hover:bg-neutral-900 border border-red-600 text-white w-10 h-10 sm:w-auto sm:h-auto sm:px-4 sm:py-3 rounded-xl transition flex items-center justify-center gap-2 text-sm font-semibold shadow-md">
+                        <i class="fa-solid fa-download"></i><span class="hidden sm:inline">Backup</span>
+                    </button>
+                    <label title="Restore" class="btn-premium bg-[#0b0f19] border border-neutral-800 hover:border-red-500 text-white w-10 h-10 sm:w-auto sm:h-auto sm:px-4 sm:py-3 rounded-xl transition flex items-center justify-center gap-2 text-sm font-semibold shadow-md cursor-pointer">
+                        <i class="fa-solid fa-upload"></i><span class="hidden sm:inline">Restore</span>
+                        <input type="file" accept="application/json" onchange="importBackupFile(event)" class="hidden">
+                    </label>
+                </div>
+            </div>
+
+            <!-- Row 2: Search -->
+            <div class="flex items-center gap-2 mb-4">
+                <div class="relative flex-1">
+                    <input type="text" id="search" placeholder="Search movies and web series..." 
+                           class="bg-[#0b0f19] border border-neutral-800 p-3 pl-10 rounded-xl w-full focus:border-red-500 focus:ring-1 focus:ring-red-500 outline-none text-white text-sm transition-all duration-300 placeholder-neutral-500">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-4 text-neutral-500 text-xs"></i>
+                </div>
+                <button onclick="triggerSearch()" class="btn-premium bg-[#ef4444] hover:bg-red-600 text-white font-bold text-sm px-4 sm:px-5 py-3 rounded-xl shadow-lg glow-red shrink-0">
+                    Search
+                </button>
+            </div>
+
+            <!-- Row 3: Library Shortcuts -->
+            <div class="grid grid-cols-2 sm:flex sm:flex-wrap gap-2 sm:gap-3">
+                <button onclick="openLibraryModal('watchlist')" class="bg-[#0b0f19] border border-neutral-800 px-4 py-3 rounded-xl flex items-center justify-center gap-2 text-sm font-semibold pill-animate">
+                    <i class="fa-solid fa-layer-group text-[#ef4444]"></i> Watchlists
+                </button>
+                <button onclick="openLibraryModal('watched')" class="bg-[#0b0f19] border border-neutral-800 px-4 py-3 rounded-xl flex items-center justify-center gap-2 text-sm font-semibold pill-animate">
+                    <i class="fa-solid fa-square-check text-red-500"></i> Watched
+                </button>
+            </div>
+        </header>
+
+        <!-- GENRE CAROUSEL -->
+        <div class="mb-10">
+            <p class="text-neutral-400 text-[10px] uppercase font-bold tracking-widest mb-3 flex items-center gap-1.5 px-1">
+                <i class="fa-solid fa-tags text-red-500"></i> Browse by Genre
+            </p>
+            <div class="flex gap-2 overflow-x-auto pb-3 custom-scroll scroll-smooth">
+                <button onclick="discoverByGenre('28', '10759', 'Action & Adventure')" class="bg-[#0b0f19] border border-neutral-850 px-5 py-2.5 rounded-xl text-xs font-semibold whitespace-nowrap pill-animate text-neutral-200">🔥 Action</button>
+                <button onclick="discoverByGenre('35', '35', 'Comedy')" class="bg-[#0b0f19] border border-neutral-850 px-5 py-2.5 rounded-xl text-xs font-semibold whitespace-nowrap pill-animate text-neutral-200">😂 Comedy</button>
+                <button onclick="discoverByGenre('80', '80', 'Crime')" class="bg-[#0b0f19] border border-neutral-850 px-5 py-2.5 rounded-xl text-xs font-semibold whitespace-nowrap pill-animate text-neutral-200">🕵️‍♂️ Crime</button>
+                <button onclick="discoverByGenre('18', '18', 'Drama')" class="bg-[#0b0f19] border border-neutral-850 px-5 py-2.5 rounded-xl text-xs font-semibold whitespace-nowrap pill-animate text-neutral-200">🎭 Drama</button>
+                <button onclick="discoverByGenre('878', '10765', 'Sci-Fi & Fantasy')" class="bg-[#0b0f19] border border-neutral-850 px-5 py-2.5 rounded-xl text-xs font-semibold whitespace-nowrap pill-animate text-neutral-200">🚀 Sci-Fi</button>
+                <button onclick="discoverByGenre('53', '53', 'Thriller')" class="bg-[#0b0f19] border border-neutral-850 px-5 py-2.5 rounded-xl text-xs font-semibold whitespace-nowrap pill-animate text-neutral-200">⚡ Thriller</button>
+                <button onclick="discoverByGenre('27', '27', 'Horror')" class="bg-[#0b0f19] border border-neutral-850 px-5 py-2.5 rounded-xl text-xs font-semibold whitespace-nowrap pill-animate text-neutral-200">👻 Horror</button>
+            </div>
+        </div>
+
+        <!-- History Records -->
+        <div id="search-history-container" class="mb-8 flex flex-wrap items-center gap-2 text-xs text-neutral-400 hidden animate-render">
+            <span class="font-bold uppercase tracking-wider text-[10px] text-neutral-500 flex items-center gap-1">
+                <i class="fa-solid fa-clock-rotate-left text-red-500"></i> History:
+            </span>
+            <div id="history-pills" class="flex flex-wrap gap-1.5"></div>
+            <button onclick="clearSearchHistory()" class="text-neutral-500 hover:text-[#ef4444] ml-2 transition text-[10px] uppercase font-bold">Clear All</button>
+        </div>
+
+        <!-- Dashboard Home Grid -->
+        <div id="home-dashboard" class="space-y-12">
+            <div id="stat-banner"></div>
+            <div>
+                <h2 class="text-xl font-black uppercase tracking-wider mb-5 flex items-center gap-2 text-neutral-100">
+                    <span class="w-1.5 h-6 bg-gradient-to-b from-[#ef4444] to-red-800 rounded-full"></span> Trending Movies
+                </h2>
+                <div id="movies-row" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6"></div>
+            </div>
+
+            <div>
+                <h2 class="text-xl font-black uppercase tracking-wider mb-5 flex items-center gap-2 text-neutral-100">
+                    <span class="w-1.5 h-6 bg-gradient-to-b from-red-500 to-red-900 rounded-full"></span> Trending Web Series
+                </h2>
+                <div id="series-row" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6"></div>
+            </div>
+        </div>
+
+        <!-- Search Engine Systems -->
+        <div id="search-dashboard" class="hidden">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 border-b border-neutral-900 pb-4">
+                <h2 id="search-title" class="text-xl font-black uppercase tracking-wider text-neutral-100 flex items-center gap-2"></h2>
+                
+                <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
+                    <select id="filter-category" onchange="applyFiltersAndSort()" class="bg-[#0b0f19] border border-neutral-800 text-xs p-2.5 rounded-lg text-neutral-300 outline-none focus:border-red-500">
+                        <option value="all">All Types</option>
+                        <option value="movie">Movies Only</option>
+                        <option value="tv">Web Series Only</option>
+                    </select>
+                    <select id="filter-sort" onchange="applyFiltersAndSort()" class="bg-[#0b0f19] border border-neutral-800 text-xs p-2.5 rounded-lg text-neutral-300 outline-none focus:border-red-500">
+                        <option value="default">Best Match</option>
+                        <option value="rating">Highest Rated (IMDb)</option>
+                        <option value="date">Release Date (Newest)</option>
+                    </select>
+                </div>
+            </div>
+            <div id="search-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6"></div>
+        </div>
+    </div>
+
+    <!-- MOVIE / SHOW DETAIL MODAL -->
+    <div id="modal" class="fixed inset-0 bg-black/95 hidden overflow-y-auto p-4 md:p-8 lg:p-12 z-[80] backdrop-blur-2xl transition-all duration-550">
+        <div class="max-w-5xl mx-auto bg-[#0a0d16]/95 border border-neutral-800/80 p-6 md:p-8 rounded-2xl shadow-2xl modal-3d relative">
+            <button onclick="closeModal()" class="text-neutral-400 hover:text-white mb-6 flex items-center gap-2 font-bold text-xs tracking-widest transition-all uppercase btn-premium">
+                <i class="fa-solid fa-chevron-left text-red-500"></i> Back
+            </button>
+            <div id="modal-content" class="grid grid-cols-1 md:grid-cols-3 gap-8"></div>
+        </div>
+    </div>
+
+    <!-- ACTOR / CREW PROFILE -->
+    <div id="profile-modal" class="fixed inset-0 bg-black/98 hidden overflow-y-auto p-4 md:p-8 lg:p-12 z-[90] backdrop-blur-3xl">
+        <div class="max-w-6xl mx-auto bg-[#05060c] border border-neutral-800 p-6 md:p-10 rounded-3xl shadow-2xl modal-3d glow-purple">
+            <button onclick="closeProfileModal()" class="text-neutral-400 hover:text-white mb-8 flex items-center gap-2 font-bold text-xs tracking-widest transition uppercase btn-premium">
+                <i class="fa-solid fa-arrow-left text-[#ef4444]"></i> Close
+            </button>
+            <div id="profile-modal-content"></div>
+        </div>
+    </div>
+
+    <!-- WATCHLIST / WATCHED MODAL -->
+    <div id="library-modal" class="fixed inset-0 bg-black/95 hidden overflow-y-auto p-4 md:p-12 z-50 backdrop-blur-xl">
+        <div class="max-w-5xl mx-auto">
+            <button onclick="closeLibraryModal()" class="text-neutral-400 hover:text-white mb-6 flex items-center gap-2 font-bold text-xs tracking-widest transition uppercase btn-premium">
+                <i class="fa-solid fa-xmark text-red-500"></i> Close
+            </button>
+            <div class="bg-[#080b14] border border-neutral-800 p-6 md:p-8 rounded-2xl shadow-xl modal-3d">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 border-b border-neutral-800 pb-4">
+                    <h3 id="library-title" class="text-2xl font-black text-white tracking-tight"></h3>
+                    <div class="flex gap-2">
+                        <input type="text" id="new-folder-name" placeholder="Folder Label..." class="bg-[#0e1322] border border-neutral-800 text-xs px-4 py-2.5 rounded-xl outline-none focus:border-red-500 text-white transition-all">
+                        <button onclick="createNewFolder()" class="btn-premium bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-md glow-blue">Create Folder</button>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div id="folder-sidebar" class="space-y-2 border-r border-neutral-800/60 pr-4 max-h-[400px] overflow-y-auto custom-scroll"></div>
+                    <div class="md:col-span-3">
+                        <div id="folder-items-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-4 max-h-[500px] overflow-y-auto custom-scroll p-1"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- STATS MODAL -->
+    <div id="analytics-modal" class="fixed inset-0 bg-black/95 hidden overflow-y-auto p-4 md:p-12 z-50 backdrop-blur-xl">
+        <div class="max-w-4xl mx-auto">
+            <button onclick="closeAnalyticsModal()" class="text-neutral-400 hover:text-white mb-6 flex items-center gap-2 font-bold text-xs tracking-widest transition uppercase btn-premium">
+                <i class="fa-solid fa-xmark text-[#ef4444]"></i> Close
+            </button>
+            <div class="bg-[#080b14] border border-neutral-800 p-6 md:p-8 rounded-2xl shadow-2xl modal-3d">
+                <h3 class="text-2xl font-black mb-6 tracking-tight flex items-center gap-2 text-white"><i class="fa-solid fa-chart-bar text-red-500"></i> My Stats</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+                    <div class="bg-[#0e1322] border border-neutral-800 p-5 rounded-xl text-center glow-blue">
+                        <p class="text-[10px] uppercase tracking-widest text-neutral-400 font-bold mb-1">Total Titles</p>
+                        <p id="stat-total-titles" class="text-3xl font-black text-white">0</p>
+                    </div>
+                    <div class="bg-[#0e1322] border border-neutral-800 p-5 rounded-xl text-center">
+                        <p class="text-[10px] uppercase tracking-widest text-neutral-400 font-bold mb-1">Total Watch Time</p>
+                        <p id="stat-total-time" class="text-2xl font-black text-[#ef4444]">0 mins</p>
+                    </div>
+                    <div class="bg-[#0e1322] border border-neutral-800 p-5 rounded-xl text-center">
+                        <p class="text-[10px] uppercase tracking-widest text-neutral-400 font-bold mb-1">Highest Rating</p>
+                        <p id="stat-highest-rate" class="text-3xl font-black text-white">0.0</p>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="text-xs font-bold uppercase tracking-widest text-neutral-400 mb-3 px-1">Top Genres</h4>
+                    <div id="genre-analytics-list" class="space-y-2"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Designer Signature Component -->
+    <footer class="border-t border-neutral-900/60 pt-6 pb-2 text-center text-xs text-neutral-500 w-full mt-16">
+        <p class="tracking-widest text-[10px] font-medium uppercase text-neutral-400 animate-pulse">
+            MADE BY <span class="bg-gradient-to-r from-[#ef4444] via-white to-[#ef4444] bg-clip-text text-transparent font-black tracking-normal">HARSH HARNE</span>
+        </p>
+    </footer>
+
+    <script>
+        const API_KEY = 'a276242f4d49804955226ea17955efa0';
+        const USERS_KEY = 'cs_users_list';
+        const ACTIVE_USER_KEY = 'cs_active_user';
+
+        let currentUser = null;
+        let storage = { watchlist: { "Default Watchlist": [] }, watched: { "Completed Movies": [] }, ratings: {}, reviews: {} };
+        let searchHistory = [];
+        let rawSearchCache = []; 
+
+        let currentLibMode = 'watchlist';
+        let currentFolderName = '';
+        let activeMediaItemCache = null;
+
+        function dbKey(user) { return `cs_master_db__${user}`; }
+        function histKey(user) { return `cs_master_hist__${user}`; }
+
+        function getUserList() {
+            return JSON.parse(localStorage.getItem(USERS_KEY)) || [];
+        }
+        function saveUserList(list) {
+            localStorage.setItem(USERS_KEY, JSON.stringify(list));
+        }
+
+        function renderSavedUsersList() {
+            const users = getUserList();
+            const section = document.getElementById('saved-users-section');
+            const list = document.getElementById('saved-users-list');
+            if (users.length === 0) {
+                section.classList.add('hidden');
+                return;
+            }
+            section.classList.remove('hidden');
+            list.innerHTML = users.map(u => `
+                <button onclick="loginAsUser('${u.replace(/'/g, "\\'")}')" class="pill-animate bg-[#0e1322] border border-neutral-800 hover:border-[#ef4444] text-neutral-200 text-xs font-bold px-4 py-2 rounded-xl flex items-center gap-2">
+                    <i class="fa-solid fa-user text-[#ef4444]"></i> ${u}
+                    <i onclick="event.stopPropagation(); deleteSavedUser('${u.replace(/'/g, "\\'")}')" class="fa-solid fa-xmark text-neutral-600 hover:text-[#ef4444] ml-1"></i>
+                </button>
+            `).join('');
+        }
+
+        function deleteSavedUser(username) {
+            if (!confirm(`Remove "${username}" from this device? Their saved watchlist data will also be deleted from this browser (export a Backup first if needed).`)) return;
+            const users = getUserList().filter(u => u !== username);
+            saveUserList(users);
+            localStorage.removeItem(dbKey(username));
+            localStorage.removeItem(histKey(username));
+            renderSavedUsersList();
+        }
+
+        function loginAsUser(forcedName = null) {
+            let username = forcedName || document.getElementById('login-username-input').value.trim();
+            username = username.replace(/\s+/g, ' ').slice(0, 24);
+            if (!username) { showLoginError('Please enter a username.'); return; }
+
+            const users = getUserList();
+            if (!users.includes(username)) {
+                users.push(username);
+                saveUserList(users);
+            }
+
+            currentUser = username;
+            localStorage.setItem(ACTIVE_USER_KEY, username);
+
+            storage = JSON.parse(localStorage.getItem(dbKey(username))) || {
+                watchlist: { "Default Watchlist": [] },
+                watched: { "Completed Movies": [] },
+                ratings: {},
+                reviews: {}
+            };
+            searchHistory = JSON.parse(localStorage.getItem(histKey(username))) || [];
+
+            enterApp();
+        }
+
+        function showLoginError(msg) {
+            const input = document.getElementById('login-username-input');
+            input.placeholder = msg;
+            input.classList.add('border-[#ef4444]');
+            input.value = '';
+        }
+
+        function enterApp() {
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('main-app-content').classList.remove('hidden');
+            document.getElementById('active-user-name').innerText = currentUser;
+            document.getElementById('active-user-display').classList.remove('hidden');
+            document.getElementById('active-user-display').classList.add('flex');
+            document.getElementById('logo-subtitle').classList.add('hidden');
+
+            loadTrendingData();
+            updateSearchHistoryUI();
+            renderStatBanner();
+            showToast(`Welcome, ${currentUser}!`);
+        }
+
+        function openSwitchUserScreen() {
+            document.getElementById('main-app-content').classList.add('hidden');
+            document.getElementById('login-screen').classList.remove('hidden');
+            document.getElementById('login-username-input').value = '';
+            renderSavedUsersList();
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            initSpaceCanvas();
+            renderSavedUsersList();
+
+            const lastActive = localStorage.getItem(ACTIVE_USER_KEY);
+            if (lastActive && getUserList().includes(lastActive)) {
+                loginAsUser(lastActive);
+            }
+        });
+
+        function renderStatBanner() {
+            const banner = document.getElementById('stat-banner');
+            if (!banner) return;
+
+            let allIds = new Set();
+            Object.values(storage.watchlist).forEach(arr => arr.forEach(i => allIds.add(i.id)));
+            Object.values(storage.watched).forEach(arr => arr.forEach(i => allIds.add(i.id)));
+            const totalTracked = allIds.size;
+            const totalReviews = Object.keys(storage.reviews).filter(k => storage.reviews[k]).length;
+            const folderCount = Object.keys(storage.watchlist).length + Object.keys(storage.watched).length;
+
+            const stats = [
+                { num: totalTracked, label: 'Titles Tracked' },
+                { num: folderCount, label: 'Folders Created' },
+                { num: totalReviews, label: 'Reviews Written' },
+                { num: '∞', label: 'Stories To Explore' }
+            ];
+
+            banner.innerHTML = stats.map(s => `
+                <div class="stat-pod animate-render">
+                    <div class="stat-num" data-target="${s.num}">${typeof s.num === 'number' ? 0 : s.num}</div>
+                    <div class="stat-label">${s.label}</div>
+                </div>
+            `).join('');
+
+            banner.querySelectorAll('.stat-num').forEach(el => {
+                const target = el.getAttribute('data-target');
+                if (isNaN(target)) return;
+                const targetNum = parseInt(target, 10);
+                if (targetNum === 0) { el.textContent = '0'; return; }
+                let current = 0;
+                const step = Math.max(1, Math.ceil(targetNum / 40));
+                const tick = () => {
+                    current = Math.min(current + step, targetNum);
+                    el.textContent = current;
+                    if (current < targetNum) requestAnimationFrame(tick);
+                };
+                requestAnimationFrame(tick);
+            });
+        }
+
+        /* ===== TOAST NOTIFICATIONS WITH PARTICLE BURST ===== */
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            if (!container) { alert(message); return; }
+
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.style.pointerEvents = 'auto';
+            toast.style.borderColor = type === 'error' ? 'rgba(239,68,68,0.45)' : 'rgba(255,255,255,0.45)';
+            toast.innerHTML = `<i class="fa-solid ${type === 'error' ? 'fa-circle-exclamation text-[#ef4444]' : 'fa-circle-check text-red-400'} mr-2"></i>${message}`;
+
+            if (type !== 'error') {
+                for (let i = 0; i < 8; i++) {
+                    const spark = document.createElement('span');
+                    spark.className = 'toast-spark';
+                    const angle = Math.random() * Math.PI * 2;
+                    const dist = 30 + Math.random() * 40;
+                    spark.style.setProperty('--sx', `${Math.cos(angle) * dist}px`);
+                    spark.style.setProperty('--sy', `${Math.sin(angle) * dist}px`);
+                    spark.style.animationDelay = `${Math.random() * 0.15}s`;
+                    toast.appendChild(spark);
+                }
+            }
+
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.classList.add('toast-out');
+                setTimeout(() => toast.remove(), 400);
+            }, 2600);
+        }
+
+        /* ===== 3D STARFIELD ENGINE ===== */
+        function initSpaceCanvas() {
+            const canvas = document.getElementById('space-canvas');
+            const ctx = canvas.getContext('2d');
+            let stars = [];
+            let w, h, cx, cy;
+
+            function resize() {
+                w = canvas.width = window.innerWidth;
+                h = canvas.height = window.innerHeight;
+                cx = w / 2; cy = h / 2;
+            }
+            window.addEventListener('resize', resize);
+            resize();
+
+            const STAR_COUNT = window.innerWidth < 768 ? 220 : 420;
+            for (let i = 0; i < STAR_COUNT; i++) {
+                stars.push({
+                    x: (Math.random() - 0.5) * w * 2,
+                    y: (Math.random() - 0.5) * h * 2,
+                    z: Math.random() * w,
+                    color: Math.random() < 0.15 ? (Math.random() < 0.5 ? '255,255,255' : '239,68,68') : '255,255,255'
+                });
+            }
+
+            function tick() {
+                ctx.fillStyle = 'rgba(5,5,8,1)';
+                ctx.fillRect(0, 0, w, h);
+                for (const s of stars) {
+                    s.z -= 1.6;
+                    if (s.z <= 0) { s.z = w; s.x = (Math.random() - 0.5) * w * 2; s.y = (Math.random() - 0.5) * h * 2; }
+                    const k = 128 / s.z;
+                    const sx = s.x * k + cx;
+                    const sy = s.y * k + cy;
+                    if (sx < 0 || sx >= w || sy < 0 || sy >= h) continue;
+                    const size = (1 - s.z / w) * 2.4;
+                    const alpha = 1 - s.z / w;
+                    ctx.beginPath();
+                    ctx.fillStyle = `rgba(${s.color},${alpha})`;
+                    ctx.arc(sx, sy, Math.max(size, 0.3), 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                requestAnimationFrame(tick);
+            }
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                requestAnimationFrame(tick);
+            } else {
+                ctx.fillStyle = 'rgba(5,5,8,1)';
+                ctx.fillRect(0, 0, w, h);
+            }
+        }
+
+
+        function attachTiltEffect(container) {
+            const cards = container.querySelectorAll('.tilt-3d');
+            cards.forEach(card => {
+                card.addEventListener('mousemove', (e) => {
+                    const rect = card.getBoundingClientRect();
+                    const px = (e.clientX - rect.left) / rect.width;
+                    const py = (e.clientY - rect.top) / rect.height;
+                    const ry = (px - 0.5) * 18;
+                    const rx = (0.5 - py) * 18;
+                    card.style.setProperty('--rx', `${rx}deg`);
+                    card.style.setProperty('--ry', `${ry}deg`);
+                    card.style.setProperty('--tz', `12px`);
+                    card.style.setProperty('--mx', `${px * 100}%`);
+                    card.style.setProperty('--my', `${py * 100}%`);
+                });
+                card.addEventListener('mouseleave', () => {
+                    card.style.setProperty('--rx', `0deg`);
+                    card.style.setProperty('--ry', `0deg`);
+                    card.style.setProperty('--tz', `0px`);
+                });
+            });
+        }
+
+        function syncProfileStorage() {
+            if (!currentUser) return;
+            localStorage.setItem(dbKey(currentUser), JSON.stringify(storage));
+        }
+
+        // ---- PERMANENT BACKUP / RESTORE (Option C) ----
+        // Saves your watchlist, watched list, ratings, reviews and search history
+        // to a .json file you choose where to save (Downloads, Google Drive, etc).
+        // This file is NOT deleted when the app is uninstalled or app data is cleared,
+        // as long as you keep the file itself safe.
+        function exportBackupFile() {
+            const backupPayload = {
+                appName: 'CineSpace',
+                username: currentUser,
+                backupVersion: 1,
+                exportedAt: new Date().toISOString(),
+                storage: storage,
+                searchHistory: searchHistory
+            };
+            const jsonStr = JSON.stringify(backupPayload, null, 2);
+            const blob = new Blob([jsonStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const dateTag = new Date().toISOString().slice(0, 10);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `cinespace-backup-${currentUser}-${dateTag}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            alert('Backup saved! Move this file to Google Drive, email, or another safe place so it survives even if you uninstall the app.');
+        }
+
+        function importBackupFile(event) {
+            const file = event.target.files && event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const parsed = JSON.parse(e.target.result);
+                    const incomingStorage = parsed.storage || parsed; // support raw cs_master_db exports too
+                    const incomingHistory = parsed.searchHistory || [];
+
+                    if (!incomingStorage || (!incomingStorage.watchlist && !incomingStorage.watched)) {
+                        alert('This does not look like a valid CineSpace backup file.');
+                        return;
+                    }
+
+                    const replace = confirm(
+                        'Restore this backup?\n\nOK = Replace all current data with the backup\nCancel = Merge backup into your current data'
+                    );
+
+                    if (replace) {
+                        storage = incomingStorage;
+                        searchHistory = incomingHistory;
+                    } else {
+                        // Merge: combine folders/lists instead of overwriting
+                        ['watchlist', 'watched'].forEach(section => {
+                            if (!incomingStorage[section]) return;
+                            Object.keys(incomingStorage[section]).forEach(folder => {
+                                if (!storage[section][folder]) {
+                                    storage[section][folder] = incomingStorage[section][folder];
+                                } else {
+                                    const existingIds = new Set(storage[section][folder].map(i => i.id));
+                                    incomingStorage[section][folder].forEach(item => {
+                                        if (!existingIds.has(item.id)) storage[section][folder].push(item);
+                                    });
+                                }
+                            });
+                        });
+                        if (incomingStorage.ratings) Object.assign(storage.ratings, incomingStorage.ratings);
+                        if (incomingStorage.reviews) Object.assign(storage.reviews, incomingStorage.reviews);
+                        incomingHistory.forEach(h => { if (!searchHistory.includes(h)) searchHistory.push(h); });
+                    }
+
+                    syncProfileStorage();
+                    localStorage.setItem(histKey(currentUser), JSON.stringify(searchHistory));
+
+                    alert('Backup restored successfully!');
+                    location.reload();
+                } catch (err) {
+                    alert('Could not read this file. Make sure it is a CineSpace backup .json file.');
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = ''; // allow re-selecting the same file later
+        }
+
+        async function discoverByGenre(movieGenreId, tvGenreId, genreName) {
+            document.getElementById('home-dashboard').classList.add('hidden');
+            const searchDash = document.getElementById('search-dashboard');
+            searchDash.classList.remove('hidden');
+            searchDash.scrollIntoView({ behavior: 'smooth' });
+            
+            document.getElementById('search-title').innerHTML = `<span class="w-1.5 h-6 bg-red-500 rounded-full"></span> Genre: ${genreName}`;
+            
+            try {
+                const [movieRes, tvRes] = await Promise.all([
+                    fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${movieGenreId}`),
+                    fetch(`https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=${tvGenreId}`)
+                ]);
+
+                const movieData = await movieRes.json();
+                const tvData = await tvRes.json();
+
+                const movies = (movieData.results || []).map(m => ({ ...m, media_type: 'movie' }));
+                const series = (tvData.results || []).map(t => ({ ...t, media_type: 'tv' }));
+
+                rawSearchCache = [...movies, ...series];
+                applyFiltersAndSort();
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function triggerSearch(forcedQuery = null) {
+            const input = document.getElementById('search');
+            const query = forcedQuery ? forcedQuery.trim() : input.value.trim();
+            if(!query) return;
+
+            if(!forcedQuery) {
+                input.value = query;
+                saveSearchToHistory(query);
+            }
+
+            document.getElementById('home-dashboard').classList.add('hidden');
+            const searchDash = document.getElementById('search-dashboard');
+            searchDash.classList.remove('hidden');
+            
+            document.getElementById('search-title').innerHTML = `<span class="w-1.5 h-6 bg-[#ef4444] rounded-full"></span> Results for: "${query}"`;
+            
+            const res = await fetch(`https://api.themoviedb.org/3/search/multi?api_key=${API_KEY}&query=${encodeURIComponent(query)}`);
+            const data = await res.json();
+            
+            rawSearchCache = (data.results || []).filter(item => item.media_type === 'movie' || item.media_type === 'tv');
+            applyFiltersAndSort();
+        }
+
+        function applyFiltersAndSort() {
+            const cat = document.getElementById('filter-category').value;
+            const sort = document.getElementById('filter-sort').value;
+            
+            let workingSet = [...rawSearchCache];
+
+            if(cat !== 'all') {
+                workingSet = workingSet.filter(item => item.media_type === cat);
+            }
+
+            if(sort === 'rating') {
+                workingSet.sort((a, b) => (b.vote_average || 0) - (a.vote_average || 0));
+            } else if(sort === 'date') {
+                workingSet.sort((a, b) => {
+                    const dateA = new Date(a.release_date || a.first_air_date || '1970-01-01');
+                    const dateB = new Date(b.release_date || b.first_air_date || '1970-01-01');
+                    return dateB - dateA;
+                });
+            }
+
+            renderGrid(workingSet, 'search-grid');
+        }
+
+        function saveSearchToHistory(query) {
+            searchHistory = searchHistory.filter(h => h.toLowerCase() !== query.toLowerCase());
+            searchHistory.unshift(query);
+            searchHistory = searchHistory.slice(0, 8);
+            localStorage.setItem(histKey(currentUser), JSON.stringify(searchHistory));
+            updateSearchHistoryUI();
+        }
+
+        function updateSearchHistoryUI() {
+            const container = document.getElementById('search-history-container');
+            const pills = document.getElementById('history-pills');
+            if(searchHistory.length === 0) {
+                container.classList.add('hidden');
+                return;
+            }
+            container.classList.remove('hidden');
+            pills.innerHTML = searchHistory.map((q, index) => `
+                <span onclick="triggerSearch('${q.replace(/'/g, "\\'")}')" 
+                      style="animation-delay: ${index * 40}ms"
+                      class="bg-[#0b0f19] border border-neutral-800 text-neutral-300 font-semibold px-3 py-1.5 rounded-lg cursor-pointer transition-all text-[11px] inline-block hover:border-red-500 animate-render">
+                    ${q}
+                </span>
+            `).join('');
+        }
+
+        function clearSearchHistory() {
+            searchHistory = [];
+            localStorage.removeItem(histKey(currentUser));
+            updateSearchHistoryUI();
+        }
+
+        function goHome() {
+            document.getElementById('search').value = '';
+            document.getElementById('search-dashboard').classList.add('hidden');
+            document.getElementById('home-dashboard').classList.remove('hidden');
+            loadTrendingData();
+        }
+
+        async function loadTrendingData() {
+            try {
+                const movieRes = await fetch(`https://api.themoviedb.org/3/trending/movie/week?api_key=${API_KEY}`);
+                const movieData = await movieRes.json();
+                renderGrid(movieData.results.slice(0, 10).map(m => ({...m, media_type: 'movie'})), 'movies-row');
+
+                const tvRes = await fetch(`https://api.themoviedb.org/3/trending/tv/week?api_key=${API_KEY}`);
+                const tvData = await tvRes.json();
+                renderGrid(tvData.results.slice(0, 10).map(t => ({...t, media_type: 'tv'})), 'series-row');
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        function renderGrid(items, elementId) {
+            const container = document.getElementById(elementId);
+            if(!items || items.length === 0) {
+                container.innerHTML = `<p class="text-neutral-500 text-xs col-span-full py-6 text-center">No results found.</p>`;
+                return;
+            }
+            container.innerHTML = items.map((item, index) => {
+                const title = item.title || item.name || 'Unknown Title';
+                const poster = item.poster_path ? `https://image.tmdb.org/t/p/w400${item.poster_path}` : 'https://images.unsplash.com/photo-1594909122845-11baa439b7bf?w=400';
+                const rating = item.vote_average ? item.vote_average.toFixed(1) : 'N/A';
+                const typeLabel = item.media_type === 'tv' ? 'Web Series' : 'Movie';
+                const itemDate = item.release_date || item.first_air_date;
+                const yearLabel = itemDate ? new Date(itemDate).getFullYear() : 'N/A';
+                const borderAccent = item.media_type === 'tv' ? 'hover:border-red-500/50' : 'hover:border-red-500/50';
+
+                return `
+                    <div class="bg-[#0b0f19] border border-neutral-900/80 p-3 rounded-2xl cursor-pointer flex flex-col justify-between card-animate tilt-3d ${borderAccent} animate-render" 
+                         style="animation-delay: ${index * 45}ms"
+                         onclick="openDetailModal('${item.media_type || 'movie'}', ${item.id})">
+                        <div class="tilt-3d-shine"></div>
+                        <div>
+                            <div class="relative overflow-hidden rounded-xl aspect-[2/3] bg-neutral-950 mb-3 group">
+                                <img src="${poster}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" loading="lazy">
+                                <span class="absolute top-2 right-2 bg-black/80 backdrop-blur-md text-[11px] font-bold px-2.5 py-1 rounded-lg text-white border border-neutral-800">
+                                    <i class="fa-solid fa-star text-white mr-1"></i>${rating}
+                                </span>
+                            </div>
+                            <h3 class="font-bold text-sm text-neutral-200 line-clamp-1 mb-1 group-hover:text-white transition-colors">${title}</h3>
+                        </div>
+                        <p class="text-[10px] tracking-wider uppercase font-black ${item.media_type === 'tv' ? 'text-red-400' : 'text-[#ef4444]'}">${typeLabel} <span class="text-neutral-500 normal-case font-semibold">• ${yearLabel}</span></p>
+                    </div>
+                `;
+            }).join('');
+            attachTiltEffect(container);
+        }
+
+        /* CORRECTION SYSTEM FOR MOVIE + WEB SERIES INTEGRATED MATRIX BALANCING */
+        async function viewFullPersonnelProfile(personId) {
+            const targetModal = document.getElementById('profile-modal');
+            const container = document.getElementById('profile-modal-content');
+            
+            targetModal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            container.innerHTML = `<div class="text-center py-24"><i class="fa-solid fa-circle-notch animate-spin text-white text-3xl mb-4"></i><p class="text-neutral-400 text-xs animate-pulse">Loading profile...</p></div>`;
+            
+            try {
+                const [bioRes, creditsRes] = await Promise.all([
+                    fetch(`https://api.themoviedb.org/3/person/${personId}?api_key=${API_KEY}`),
+                    fetch(`https://api.themoviedb.org/3/person/${personId}/combined_credits?api_key=${API_KEY}`)
+                ]);
+
+                const bio = await bioRes.json();
+                const credits = await creditsRes.json();
+
+                const avatar = bio.profile_path ? `https://image.tmdb.org/t/p/w500${bio.profile_path}` : 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400';
+                
+                // Segment entries accurately to guarantee clean cross-platform representation
+                const rawCast = credits.cast || [];
+                const rawCrew = credits.crew || [];
+                const masterList = [...rawCast, ...rawCrew];
+
+                let movieTracks = [];
+                let tvTracks = [];
+                let checkedIds = new Set();
+
+                // Sort everything dynamically based on global project visibility metrics
+                masterList.sort((a,b) => (b.popularity || 0) - (a.popularity || 0));
+
+                masterList.forEach(item => {
+                    if(!checkedIds.has(item.id)) {
+                        checkedIds.add(item.id);
+                        if(item.media_type === 'movie') {
+                            movieTracks.push(item);
+                        } else if(item.media_type === 'tv') {
+                            tvTracks.push(item);
+                        }
+                    }
+                });
+
+                // Blend them sequentially (Interleaving algorithm) to avoid singular clustering blockages
+                let integratedCredits = [];
+                let maxLength = Math.max(movieTracks.length, tvTracks.length);
+                for(let i = 0; i < maxLength; i++) {
+                    if(movieTracks[i]) integratedCredits.push(movieTracks[i]);
+                    if(tvTracks[i]) integratedCredits.push(tvTracks[i]);
+                }
+
+                container.innerHTML = `
+                    <div class="grid grid-cols-1 lg:grid-cols-4 gap-8 border-b border-neutral-900 pb-10">
+                        <div class="col-span-1">
+                            <img src="${avatar}" class="w-full aspect-[3/4] object-cover rounded-2xl border border-neutral-800 shadow-2xl mb-4 transform transition-transform duration-500 hover:rotate-1">
+                        </div>
+                        <div class="lg:col-span-3 flex flex-col justify-between">
+                            <div>
+                                <span class="bg-white/10 text-neutral-200 text-[10px] uppercase tracking-widest font-black px-3 py-1 rounded-full border border-white/20">
+                                    ${bio.known_for_department || 'Creative'}
+                                </span>
+                                <h2 class="text-4xl font-black text-white mt-3 mb-4 tracking-tight">${bio.name}</h2>
+                                <p class="text-neutral-300 text-sm leading-relaxed mb-6 whitespace-pre-line max-h-64 overflow-y-auto custom-scroll pr-2">
+                                    ${bio.biography || 'No biography available.'}
+                                </p>
+                            </div>
+                            <div class="grid grid-cols-2 md:grid-cols-3 gap-4 text-xs border-t border-neutral-900 pt-4">
+                                ${bio.birthday ? `<div><p class="text-neutral-500 font-bold uppercase text-[9px] tracking-wider">Born</p><p class="text-neutral-200 mt-0.5 font-medium">${bio.birthday}</p></div>` : ''}
+                                ${bio.place_of_birth ? `<div><p class="text-neutral-500 font-bold uppercase text-[9px] tracking-wider">Birthplace</p><p class="text-neutral-200 mt-0.5 font-medium">${bio.place_of_birth}</p></div>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-10">
+                        <h3 class="text-xl font-black uppercase tracking-wider mb-6 flex items-center gap-2">
+                            <span class="w-1.5 h-6 bg-white rounded-full"></span> Known For
+                        </h3>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-5">
+                            ${integratedCredits.slice(0, 30).map((p, idx) => {
+                                const poster = p.poster_path ? `https://image.tmdb.org/t/p/w300${p.poster_path}` : 'https://images.unsplash.com/photo-1594909122845-11baa439b7bf?w=150';
+                                const pTitle = p.title || p.name || 'Untitled Project';
+                                const pType = p.media_type || 'movie';
+                                const characterLabel = p.character ? `as ${p.character}` : (p.job ? `(${p.job})` : 'Contributor');
+                                
+                                return `
+                                    <div onclick="closeProfileModal(); openDetailModal('${pType}', ${p.id})" 
+                                         style="animation-delay: ${idx * 35}ms"
+                                         class="bg-[#0b0f19] border border-neutral-900 p-2.5 rounded-xl cursor-pointer flex flex-col justify-between card-animate tilt-3d animate-render">
+                                        <div class="tilt-3d-shine"></div>
+                                        <div>
+                                            <div class="relative overflow-hidden rounded-lg aspect-[2/3] bg-neutral-950 mb-2 group">
+                                                <img src="${poster}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
+                                            </div>
+                                            <h4 class="text-xs font-bold text-neutral-200 line-clamp-1 mb-0.5">${pTitle}</h4>
+                                            <p class="text-[10px] text-neutral-500 line-clamp-1 italic mb-1">${characterLabel}</p>
+                                        </div>
+                                        <p class="text-[9px] font-black uppercase tracking-wider ${pType === 'tv' ? 'text-red-400' : 'text-[#ef4444]'}">${pType === 'tv' ? 'Web Series' : 'Movie'}</p>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+                `;
+                attachTiltEffect(container);
+            } catch(err) {
+                console.error(err);
+                container.innerHTML = `<p class="text-red-500 text-xs py-8 text-center">Couldn't load this profile. Please try again.</p>`;
+            }
+        }
+
+        function closeProfileModal() {
+            document.getElementById('profile-modal').classList.add('hidden');
+            if(document.getElementById('modal').classList.contains('hidden')) {
+                document.body.style.overflow = 'auto';
+            }
+        }
+
+        async function openDetailModal(type, id) {
+            const modal = document.getElementById('modal');
+            const content = document.getElementById('modal-content');
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            content.innerHTML = `<div class="text-center py-16 col-span-full"><i class="fa-solid fa-sync animate-spin text-red-500 text-2xl mb-2"></i><p class="text-neutral-500 text-xs animate-pulse">Loading details...</p></div>`;
+
+            try {
+                const res = await fetch(`https://api.themoviedb.org/3/${type}/${id}?api_key=${API_KEY}&append_to_response=credits,seasons,videos,watch/providers`);
+                const data = await res.json();
+                
+                activeMediaItemCache = {
+                    id: data.id,
+                    title: data.title || data.name,
+                    poster_path: data.poster_path,
+                    vote_average: data.vote_average,
+                    media_type: type,
+                    genres: data.genres || [],
+                    runtime: data.runtime || data.episode_run_time?.[0] || 0
+                };
+
+                if(data.backdrop_path) {
+                    document.body.style.background = `linear-gradient(to bottom, rgba(7, 9, 22, 0.92), #050508), url('https://image.tmdb.org/t/p/w1280${data.backdrop_path}') no-repeat center top / cover fixed`;
+                }
+
+                const title = data.title || data.name;
+                const poster = data.poster_path ? `https://image.tmdb.org/t/p/w500${data.poster_path}` : 'https://images.unsplash.com/photo-1594909122845-11baa439b7bf?w=500';
+                
+                let providerHTML = '';
+                const providers = data['watch/providers']?.results?.US; 
+                if(providers && (providers.flatrate || providers.rent || providers.buy)) {
+                    const networkStreams = [...(providers.flatrate || []), ...(providers.rent || []), ...(providers.buy || [])].slice(0, 5);
+                    providerHTML = `
+                        <div class="mt-4 bg-[#05070e]/80 border border-neutral-800 p-3 rounded-xl">
+                            <h5 class="text-[10px] uppercase tracking-widest font-black text-neutral-400 mb-2">Where to Watch</h5>
+                            <div class="flex flex-wrap gap-2">
+                                ${networkStreams.map(prov => `<img src="https://image.tmdb.org/t/p/w92${prov.logo_path}" class="w-7 h-7 rounded-lg border border-neutral-700 hover:scale-110 transition-transform" title="${prov.provider_name}">`).join('')}
+                            </div>
+                        </div>
+                    `;
+                }
+
+                const currentSavedRating = storage.ratings[data.id] || 0;
+                const currentSavedReview = storage.reviews[data.id] || '';
+                
+                let ratingInterfaceHTML = `
+                    <div class="bg-[#0b0f19] border border-neutral-800 p-3.5 rounded-xl mt-4">
+                        <h5 class="text-[10px] uppercase tracking-widest font-black text-neutral-400 mb-1.5">Your Rating & Review</h5>
+                        <div class="flex items-center gap-1.5 mb-2.5 text-sm">
+                            ${[1,2,3,4,5].map(num => `
+                                <i class="fa-solid fa-star cursor-pointer transition-all duration-200 transform hover:scale-135 ${num <= currentSavedRating ? 'text-white' : 'text-neutral-700'}" onclick="savePersonalRating(${data.id}, ${num})"></i>
+                            `).join('')}
+                        </div>
+                        <textarea id="review-field-${data.id}" placeholder="Write your review..." class="w-full bg-[#050508] border border-neutral-800 text-xs p-2.5 rounded-lg text-neutral-200 outline-none focus:border-red-500 resize-none h-14 transition-all">${currentSavedReview}</textarea>
+                        <button onclick="savePersonalReview(${data.id})" class="mt-2 w-full bg-neutral-800 hover:bg-neutral-750 text-[10px] text-white font-bold uppercase py-2 rounded-lg transition-all hover:tracking-widest">Save Review</button>
+                    </div>
+                `;
+
+                let crewList = [];
+                const targetingJobs = ['Director', 'Producer', 'Executive Producer', 'Writer', 'Screenplay', 'Story', 'Music'];
+                
+                if(data.credits?.crew) {
+                    crewList = data.credits.crew.filter(m => targetingJobs.includes(m.job));
+                }
+                if(type === 'tv' && data.created_by) {
+                    data.created_by.forEach(c => crewList.push({ id: c.id, name: c.name, job: 'Creator', profile_path: c.profile_path }));
+                }
+
+                let crewHTML = '';
+                if(crewList.length > 0) {
+                    crewHTML = `
+                        <div class="mt-6 pt-4 border-t border-neutral-900">
+                            <h4 class="text-xs font-black uppercase tracking-widest text-neutral-400 mb-3 flex items-center gap-1.5">
+                                <i class="fa-solid fa-signature text-red-500"></i> Director & Crew
+                            </h4>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[180px] overflow-y-auto custom-scroll pr-1">
+                                ${crewList.slice(0, 10).map(c => {
+                                    const img = c.profile_path ? `https://image.tmdb.org/t/p/w185${c.profile_path}` : 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100';
+                                    return `
+                                        <div class="bg-[#0b0f19] p-2 rounded-xl border border-neutral-900 flex items-center gap-3 cursor-pointer pill-animate" onclick="viewFullPersonnelProfile(${c.id})">
+                                            <img src="${img}" class="w-9 h-9 object-cover rounded-lg border border-neutral-800 bg-neutral-900">
+                                            <div class="truncate">
+                                                <p class="text-[12px] font-bold text-white truncate">${c.name}</p>
+                                                <p class="text-[10px] text-red-400 font-semibold uppercase truncate">${c.job}</p>
+                                            </div>
+                                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
+                        </div>
+                    `;
+                }
+
+                let castHTML = '';
+                if(data.credits?.cast && data.credits.cast.length > 0) {
+                    castHTML = `
+                        <div class="mt-6">
+                            <h4 class="text-xs font-black uppercase tracking-widest text-neutral-400 mb-3 flex items-center gap-1.5">
+                                <i class="fa-solid fa-users text-[#ef4444]"></i> Cast
+                            </h4>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[220px] overflow-y-auto custom-scroll pr-1">
+                                ${data.credits.cast.slice(0, 16).map(c => {
+                                    const img = c.profile_path ? `https://image.tmdb.org/t/p/w185${c.profile_path}` : 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100';
+                                    return `
+                                        <div class="bg-[#0b0f19] p-2 rounded-xl border border-neutral-900 flex items-center gap-3 cursor-pointer pill-animate" onclick="viewFullPersonnelProfile(${c.id})">
+                                            <img src="${img}" class="w-9 h-9 object-cover rounded-lg border border-neutral-800 bg-neutral-900">
+                                            <div class="truncate">
+                                                <p class="text-[12px] font-bold text-white truncate">${c.name}</p>
+                                                <p class="text-[10px] text-neutral-400 truncate">${c.character || 'Actor'}</p>
+                                            </div>
+                                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
+                        </div>
+                    `;
+                }
+
+                let seasonHTML = '';
+                if(type === 'tv' && data.seasons) {
+                    const validSeasons = data.seasons.filter(s => s.season_number > 0);
+                    seasonHTML = `
+                        <div class="col-span-1 md:col-span-3 mt-6 border-t border-neutral-900 pt-4">
+                            <div class="flex items-center justify-between mb-4 px-1">
+                                <h4 class="text-xs font-black uppercase tracking-widest text-neutral-400 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-list-ol text-red-500"></i> Seasons
+                                </h4>
+                                <select onchange="loadEpisodes(${data.id}, this.value)" class="bg-[#0b0f19] border border-neutral-800 text-xs p-2 rounded-lg text-white font-semibold focus:border-red-500 outline-none">
+                                    ${validSeasons.map(s => `<option value="${s.season_number}">${s.name}</option>`).join('')}
+                                </select>
+                            </div>
+                            <div id="episode-container" class="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[280px] overflow-y-auto custom-scroll pr-2 p-0.5"></div>
+                        </div>
+                    `;
+                }
+
+                const trailerAsset = data.videos?.results?.find(v => v.type === 'Trailer' && v.site === 'YouTube') || data.videos?.results?.find(v => v.site === 'YouTube');
+                const youtubeUrl = trailerAsset ? `https://www.youtube.com/watch?v=${trailerAsset.key}` : `https://www.youtube.com/results?search_query=${encodeURIComponent(title + ' official trailer')}`;
+
+                const releaseDateRaw = data.release_date || data.first_air_date;
+                const releaseDateFormatted = releaseDateRaw ? new Date(releaseDateRaw).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : 'Unknown';
+                const runtimeMinutes = data.runtime || data.episode_run_time?.[0] || 0;
+                const runtimeFormatted = runtimeMinutes ? `${Math.floor(runtimeMinutes / 60)}h ${runtimeMinutes % 60}m` : 'N/A';
+                const languageNames = new Intl.DisplayNames(['en'], { type: 'language' });
+                let languageFormatted = 'N/A';
+                try { languageFormatted = data.original_language ? languageNames.of(data.original_language) : 'N/A'; } catch(e) { languageFormatted = data.original_language || 'N/A'; }
+
+                let factsHTML = `
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-4 mb-4 text-xs">
+                        <div class="bg-[#0b0f19] border border-neutral-900 p-2.5 rounded-xl">
+                            <p class="text-neutral-500 font-black uppercase text-[9px] tracking-wider mb-0.5"><i class="fa-solid fa-calendar-days text-red-500 mr-1"></i>${type === 'tv' ? 'First Aired' : 'Release Date'}</p>
+                            <p class="text-neutral-200 font-semibold">${releaseDateFormatted}</p>
+                        </div>
+                        <div class="bg-[#0b0f19] border border-neutral-900 p-2.5 rounded-xl">
+                            <p class="text-neutral-500 font-black uppercase text-[9px] tracking-wider mb-0.5"><i class="fa-solid fa-clock text-red-500 mr-1"></i>${type === 'tv' ? 'Episode Runtime' : 'Runtime'}</p>
+                            <p class="text-neutral-200 font-semibold">${runtimeFormatted}</p>
+                        </div>
+                        <div class="bg-[#0b0f19] border border-neutral-900 p-2.5 rounded-xl">
+                            <p class="text-neutral-500 font-black uppercase text-[9px] tracking-wider mb-0.5"><i class="fa-solid fa-circle-info text-red-500 mr-1"></i>Status</p>
+                            <p class="text-neutral-200 font-semibold">${data.status || 'N/A'}</p>
+                        </div>
+                        <div class="bg-[#0b0f19] border border-neutral-900 p-2.5 rounded-xl">
+                            <p class="text-neutral-500 font-black uppercase text-[9px] tracking-wider mb-0.5"><i class="fa-solid fa-language text-red-500 mr-1"></i>Language</p>
+                            <p class="text-neutral-200 font-semibold">${languageFormatted}</p>
+                        </div>
+                        ${type === 'tv' ? `
+                        <div class="bg-[#0b0f19] border border-neutral-900 p-2.5 rounded-xl">
+                            <p class="text-neutral-500 font-black uppercase text-[9px] tracking-wider mb-0.5"><i class="fa-solid fa-layer-group text-red-500 mr-1"></i>Seasons</p>
+                            <p class="text-neutral-200 font-semibold">${data.number_of_seasons || 'N/A'}</p>
+                        </div>
+                        <div class="bg-[#0b0f19] border border-neutral-900 p-2.5 rounded-xl">
+                            <p class="text-neutral-500 font-black uppercase text-[9px] tracking-wider mb-0.5"><i class="fa-solid fa-film text-red-500 mr-1"></i>Episodes</p>
+                            <p class="text-neutral-200 font-semibold">${data.number_of_episodes || 'N/A'}</p>
+                        </div>
+                        ` : `
+                        <div class="bg-[#0b0f19] border border-neutral-900 p-2.5 rounded-xl">
+                            <p class="text-neutral-500 font-black uppercase text-[9px] tracking-wider mb-0.5"><i class="fa-solid fa-sack-dollar text-red-500 mr-1"></i>Budget</p>
+                            <p class="text-neutral-200 font-semibold">${data.budget ? '$' + data.budget.toLocaleString() : 'N/A'}</p>
+                        </div>
+                        <div class="bg-[#0b0f19] border border-neutral-900 p-2.5 rounded-xl">
+                            <p class="text-neutral-500 font-black uppercase text-[9px] tracking-wider mb-0.5"><i class="fa-solid fa-coins text-red-500 mr-1"></i>Revenue</p>
+                            <p class="text-neutral-200 font-semibold">${data.revenue ? '$' + data.revenue.toLocaleString() : 'N/A'}</p>
+                        </div>
+                        `}
+                    </div>
+                    ${data.tagline ? `<p class="text-neutral-400 text-xs italic mb-3">"${data.tagline}"</p>` : ''}
+                `;
+
+                content.innerHTML = `
+                    <div class="animate-render">
+                        <img src="${poster}" class="w-full rounded-2xl border border-neutral-800 shadow-2xl mb-4 transition-transform hover:scale-[1.01]">
+                        <a href="${youtubeUrl}" target="_blank" class="w-full bg-[#ef4444] text-white font-black text-xs tracking-widest uppercase py-3.5 rounded-xl transition flex items-center justify-center gap-2 text-center btn-premium shadow-lg glow-red">
+                            <i class="fa-brands fa-youtube text-lg"></i> Watch Trailer
+                        </a>
+                        ${providerHTML}
+                        ${ratingInterfaceHTML}
+                        <div class="space-y-2.5 bg-[#0b0f19] p-3.5 rounded-xl border border-neutral-800 mt-4">
+                            <div>
+                                <label class="block text-[9px] font-black text-neutral-400 uppercase tracking-wider mb-1.5 px-0.5">Add to Watchlist</label>
+                                <select onchange="saveToLibrary('watchlist', this.value)" class="w-full bg-[#050508] border border-neutral-800 text-xs p-2.5 rounded-lg text-neutral-300 focus:border-red-500 outline-none">
+                                    <option value="" disabled selected>Choose a folder...</option>
+                                    ${Object.keys(storage.watchlist).map(k => `<option value="${k}">${isInFolder('watchlist', k) ? '✓ ' : ''}${k}</option>`).join('')}
+                                </select>
+                                <div id="watchlist-folder-status" class="flex flex-wrap gap-1.5 mt-2"></div>
+                            </div>
+                            <div>
+                                <label class="block text-[9px] font-black text-neutral-400 uppercase tracking-wider mb-1.5 px-0.5">Mark as Watched</label>
+                                <select onchange="saveToLibrary('watched', this.value)" class="w-full bg-[#050508] border border-neutral-800 text-xs p-2.5 rounded-lg text-neutral-300 focus:border-red-500 outline-none">
+                                    <option value="" disabled selected>Choose a folder...</option>
+                                    ${Object.keys(storage.watched).map(k => `<option value="${k}">${isInFolder('watched', k) ? '✓ ' : ''}${k}</option>`).join('')}
+                                </select>
+                                <div id="watched-folder-status" class="flex flex-wrap gap-1.5 mt-2"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="md:col-span-2 flex flex-col justify-between animate-render" style="animation-delay: 80ms">
+                        <div>
+                            <div class="flex flex-wrap items-center gap-2 mb-2">
+                                <span class="bg-red-600 text-white text-[9px] font-black tracking-widest uppercase px-2 py-0.5 rounded">${type === 'tv' ? 'Web Series' : 'Movie'}</span>
+                                <span class="bg-neutral-900 border border-neutral-800 text-white text-[10px] font-bold px-2 py-0.5 rounded-md"><i class="fa-solid fa-star text-white mr-1"></i>IMDb ${data.vote_average?.toFixed(1)}</span>
+                            </div>
+                            <h2 class="text-3xl font-black text-white mb-2 tracking-tight">${title}</h2>
+                            ${factsHTML}
+                            <p class="text-neutral-300 text-sm leading-relaxed mb-4 font-normal">${data.overview || 'No description available.'}</p>
+                            
+                            <p class="text-xs text-neutral-400"><span class="text-neutral-500 font-black uppercase text-[10px]">Genres:</span> ${data.genres?.map(g=>g.name).join(', ')}</p>
+                            ${crewHTML}
+                            ${castHTML}
+                        </div>
+                    </div>
+                    ${seasonHTML}
+                `;
+
+                if(type === 'tv' && data.seasons && data.seasons.length > 0) {
+                    const initialSeason = data.seasons.find(s => s.season_number > 0) || data.seasons[0];
+                    loadEpisodes(data.id, initialSeason.season_number);
+                }
+
+                renderFolderStatus('watchlist');
+                renderFolderStatus('watched');
+
+            } catch(e) {
+                console.error(e);
+                content.innerHTML = `<p class="text-red-500 text-xs py-4 text-center">Something went wrong. Please try again.</p>`;
+            }
+        }
+
+        async function loadEpisodes(seriesId, seasonNum) {
+            const container = document.getElementById('episode-container');
+            container.innerHTML = `<p class="text-neutral-500 text-xs py-4 col-span-full"><i class="fa-solid fa-circle-notch animate-spin text-red-500 mr-2"></i>Loading episodes...</p>`;
+            try {
+                const res = await fetch(`https://api.themoviedb.org/3/tv/${seriesId}/season/${seasonNum}?api_key=${API_KEY}`);
+                const data = await res.json();
+                
+                container.innerHTML = (data.episodes || []).map((e, idx) => `
+                    <div style="animation-delay: ${idx * 25}ms" class="bg-[#0b0f19] border border-neutral-900 p-3.5 rounded-xl hover:border-red-500/40 transition-all duration-300 animate-render">
+                        <div class="flex justify-between items-center mb-1.5 gap-4">
+                            <p class="font-bold text-xs text-neutral-200">
+                                <span class="text-red-400 mr-1">Episode ${e.episode_number}:</span> ${e.name || 'Untitled Segment'}
+                            </p>
+                            ${e.vote_average ? `<span class="text-[10px] font-black text-neutral-400 bg-neutral-950 border border-neutral-800 px-2 py-0.5 rounded-md shrink-0"><i class="fa-solid fa-star text-white mr-1"></i>${e.vote_average.toFixed(1)}</span>` : ''}
+                        </div>
+                        <p class="text-[11px] text-neutral-400 leading-relaxed line-clamp-2">${e.overview || 'No description available.'}</p>
+                    </div>
+                `).join('') || '<p class="text-neutral-500 text-xs col-span-full">No episodes found.</p>';
+            } catch(err) { 
+                container.innerHTML = `<p class="text-red-500 text-xs col-span-full">Couldn't load episodes. Please try again.</p>`; 
+            }
+        }
+
+        function savePersonalRating(mediaId, value) {
+            storage.ratings[mediaId] = value;
+            syncProfileStorage();
+            if(activeMediaItemCache) openDetailModal(activeMediaItemCache.media_type, activeMediaItemCache.id);
+        }
+
+        function savePersonalReview(mediaId) {
+            const text = document.getElementById(`review-field-${mediaId}`).value.trim();
+            storage.reviews[mediaId] = text;
+            syncProfileStorage();
+            showToast("Review saved!");
+        }
+
+        function openAnalyticsModal() {
+            document.getElementById('analytics-modal').classList.remove('hidden');
+            let allItems = [];
+            let totalTime = 0;
+            let genresMap = {};
+
+            Object.values(storage.watchlist).forEach(arr => allItems = allItems.concat(arr));
+            Object.values(storage.watched).forEach(arr => {
+                allItems = allItems.concat(arr);
+                arr.forEach(item => { totalTime += (item.runtime || 0); });
+            });
+
+            const uniqueIds = Array.from(new Set(allItems.map(i => i.id)));
+            document.getElementById('stat-total-titles').innerText = uniqueIds.length;
+            document.getElementById('stat-total-time').innerText = `${totalTime} mins`;
+            
+            const ratingsArray = Object.values(storage.ratings);
+            const highestRating = ratingsArray.length > 0 ? Math.max(...ratingsArray).toFixed(1) : '0.0';
+            document.getElementById('stat-highest-rate').innerText = `${highestRating} / 5`;
+
+            allItems.forEach(item => {
+                if(item.genres) {
+                    item.genres.forEach(g => { genresMap[g.name] = (genresMap[g.name] || 0) + 1; });
+                }
+            });
+
+            const sortedGenres = Object.entries(genresMap).sort((a,b) => b[1] - a[1]).slice(0, 5);
+            const listContainer = document.getElementById('genre-analytics-list');
+            
+            if(sortedGenres.length === 0) {
+                listContainer.innerHTML = `<p class="text-neutral-500 text-xs py-4 text-center">Add some titles to see your stats here.</p>`;
+                return;
+            }
+
+            listContainer.innerHTML = sortedGenres.map(([name, count], index) => `
+                <div style="animation-delay: ${index * 40}ms" class="flex items-center justify-between bg-[#0e1322] border border-neutral-900 p-3.5 rounded-xl animate-render hover:border-red-500/30 transition-all">
+                    <span class="text-xs text-neutral-200 font-bold"><i class="fa-solid fa-hashtag text-red-500 mr-2"></i>${name}</span>
+                    <span class="text-xs bg-neutral-950 px-3 py-1 rounded-lg text-neutral-400 border border-neutral-800 font-mono">${count} Records</span>
+                </div>
+            `).join('');
+        }
+
+        function closeAnalyticsModal() {
+            document.getElementById('analytics-modal').classList.add('hidden');
+        }
+
+        function isInFolder(mode, folder) {
+            if(!activeMediaItemCache || !storage[mode][folder]) return false;
+            return storage[mode][folder].some(i => i.id === activeMediaItemCache.id);
+        }
+
+        function formatIndianCount(num) {
+            return (num || 0).toLocaleString('en-IN');
+        }
+
+        function renderFolderStatus(mode) {
+            const el = document.getElementById(`${mode}-folder-status`);
+            if(!el || !activeMediaItemCache) return;
+            const foldersWithItem = Object.keys(storage[mode]).filter(k => isInFolder(mode, k));
+            if(foldersWithItem.length === 0) {
+                el.innerHTML = `<span class="text-[10px] text-neutral-600 italic">Not added to any ${mode === 'watchlist' ? 'watchlist' : 'watched'} folder yet.</span>`;
+            } else {
+                el.innerHTML = `<span class="text-[10px] text-neutral-500 mr-1">Added in:</span>` + foldersWithItem.map(f => `
+                    <span class="inline-flex items-center gap-1 bg-red-600/15 border border-red-600/40 text-red-400 text-[10px] font-bold px-2 py-1 rounded-lg">
+                        <i class="fa-solid fa-check text-[9px]"></i>${f}
+                    </span>
+                `).join('');
+            }
+        }
+
+        function refreshLibrarySelects(mode) {
+            const selectEl = document.querySelector(`select[onchange="saveToLibrary('${mode}', this.value)"]`);
+            if(!selectEl) return;
+            selectEl.innerHTML = `<option value="" disabled selected>Choose a folder...</option>` +
+                Object.keys(storage[mode]).map(k => `<option value="${k}">${isInFolder(mode, k) ? '✓ ' : ''}${k}</option>`).join('');
+        }
+
+        function saveToLibrary(mode, folder) {
+            if(!activeMediaItemCache || !folder) return;
+            const exists = storage[mode][folder].some(i => i.id === activeMediaItemCache.id);
+            if(!exists) {
+                storage[mode][folder].push(activeMediaItemCache);
+                syncProfileStorage();
+                showToast("Added to your list!"); renderStatBanner();
+            } else { showToast("This title is already in that folder.", "error"); }
+            refreshLibrarySelects(mode);
+            renderFolderStatus(mode);
+        }
+
+        function openLibraryModal(mode) {
+            currentLibMode = mode;
+            document.getElementById('library-modal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            document.getElementById('library-title').innerText = mode === 'watchlist' ? 'My Watchlists' : 'Watched List';
+            
+            const folders = Object.keys(storage[currentLibMode]);
+            currentFolderName = folders[0] || '';
+            renderLibrarySidebar();
+            renderLibraryItems();
+        }
+
+        function createNewFolder() {
+            const input = document.getElementById('new-folder-name');
+            const name = input.value.trim();
+            if(!name) return;
+
+            if(!storage[currentLibMode][name]) {
+                storage[currentLibMode][name] = [];
+                syncProfileStorage();
+                currentFolderName = name;
+                input.value = '';
+                renderLibrarySidebar();
+                renderLibraryItems();
+            } else { showToast("A folder with that name already exists.", "error"); }
+        }
+
+        function renderLibrarySidebar() {
+            const container = document.getElementById('folder-sidebar');
+            const folders = Object.keys(storage[currentLibMode]);
+            container.innerHTML = folders.map(f => `
+                <div onclick="selectFolder('${f}')" class="p-3 rounded-xl text-xs font-bold cursor-pointer transition-all flex items-center justify-between ${f === currentFolderName ? 'bg-red-600 text-white shadow-md' : 'bg-[#0e1322] text-neutral-400 border border-neutral-900 hover:border-neutral-800'}">
+                    <span class="truncate mr-2"><i class="fa-solid fa-folder mr-1.5"></i>${f}</span>
+                    <span class="flex items-center gap-2 shrink-0">
+                        <span class="text-[10px] font-black px-2 py-0.5 rounded-md ${f === currentFolderName ? 'bg-black/25 text-white' : 'bg-neutral-950 border border-neutral-800 text-neutral-400'}">${formatIndianCount((storage[currentLibMode][f] || []).length)}</span>
+                        <i onclick="event.stopPropagation(); deleteFolder('${f}')" class="fa-solid fa-trash-can opacity-50 hover:opacity-100 hover:text-red-400 px-1 py-0.5 transition-colors"></i>
+                    </span>
+                </div>
+            `).join('');
+        }
+
+        function selectFolder(name) {
+            currentFolderName = name;
+            renderLibrarySidebar();
+            renderLibraryItems();
+        }
+
+        function deleteFolder(name) {
+            if(confirm(`Delete this folder: "${name}"?`)) {
+                delete storage[currentLibMode][name];
+                syncProfileStorage();
+                const remaining = Object.keys(storage[currentLibMode]);
+                currentFolderName = remaining[0] || '';
+                renderLibrarySidebar();
+                renderLibraryItems();
+            }
+        }
+
+        function renderLibraryItems() {
+            const container = document.getElementById('folder-items-grid');
+            if(!currentFolderName || !storage[currentLibMode][currentFolderName] || storage[currentLibMode][currentFolderName].length === 0) {
+                container.innerHTML = `<p class="text-neutral-500 text-xs col-span-full py-12 text-center">This folder is empty.</p>`;
+                return;
+            }
+            container.innerHTML = storage[currentLibMode][currentFolderName].map((item, idx) => {
+                const userStarRating = storage.ratings[item.id] ? `<span class="text-[10px] text-white ml-1 font-black"><i class="fa-solid fa-star"></i> ${storage.ratings[item.id]}.0</span>` : '';
+                return `
+                    <div style="animation-delay: ${idx * 30}ms" class="bg-[#0e1322] p-2.5 rounded-2xl relative border border-neutral-900 card-animate tilt-3d cursor-pointer group animate-render" onclick="closeLibraryModal(); openDetailModal('${item.media_type || 'movie'}', ${item.id})">
+                        <div class="tilt-3d-shine"></div>
+                        <img src="https://image.tmdb.org/t/p/w200${item.poster_path}" class="w-full aspect-[2/3] object-cover rounded-xl mb-2">
+                        <h5 class="text-[11px] font-bold text-neutral-200 truncate w-full flex items-center justify-between px-0.5">
+                            <span class="truncate">${item.title}</span>
+                            ${userStarRating}
+                        </h5>
+                        <button onclick="event.stopPropagation(); removeItemFromFolder(${item.id})" class="absolute top-4 right-4 bg-black/80 text-[#ef4444] border border-neutral-800 w-7 h-7 flex items-center justify-center rounded-xl text-xs hover:scale-110 transition-transform">
+                            <i class="fa-solid fa-minus"></i>
+                        </button>
+                    </div>
+                `;
+            }).join('');
+            attachTiltEffect(container);
+        }
+
+        function removeItemFromFolder(id) {
+            storage[currentLibMode][currentFolderName] = storage[currentLibMode][currentFolderName].filter(i => i.id !== id);
+            syncProfileStorage();
+            renderLibraryItems();
+            renderLibrarySidebar();
+            renderStatBanner();
+            if(activeMediaItemCache && activeMediaItemCache.id === id) {
+                refreshLibrarySelects(currentLibMode);
+                renderFolderStatus(currentLibMode);
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.add('hidden');
+            document.body.style.background = "radial-gradient(circle at 50% 0%, #1a0000 0%, #050505 60%)"; 
+            activeMediaItemCache = null;
+            if(document.getElementById('library-modal').classList.contains('hidden') && document.getElementById('profile-modal').classList.contains('hidden')) {
+                document.body.style.overflow = 'auto';
+            }
+        }
+
+        function closeLibraryModal() {
+            document.getElementById('library-modal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+    </script>
+</body>
+</html>
